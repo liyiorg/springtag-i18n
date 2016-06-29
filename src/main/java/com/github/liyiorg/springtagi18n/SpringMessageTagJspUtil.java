@@ -17,46 +17,46 @@ import org.apache.commons.io.FileUtils;
  *
  * 自动生成国际化中文属性文件
  */
-public class AutoSetPropertyFile {
+public class SpringMessageTagJspUtil {
 
 	private static Pattern pattern = Pattern.compile("<spring:message.*code=\"([^\"]*)\".*text=\"([^\"]*)\"[^/>]*/?>");
 
-	private static String ROOT_FILE_PATH = "D://Workspaces/WebContent/aa_view";
-	private static String OUTPUT_FILE_PATH = "D://Workspaces/i18n/i18n_zh.properties";
-
-	private static Set<String> properties = new LinkedHashSet<String>();
-
-
-
-	public static void main(String[] args) {
-		File root_file = new File(ROOT_FILE_PATH);
-		loadFile(root_file);
-		outToFile();
+	/**
+	 * 生成 属性文件
+	 * @param jsp_target_dir  jsp 文件存放目录
+	 * @param propery_output_file 输出属性文件路径名称
+	 */
+	public static void jspBiuldPropertyFile(String jsp_target_dir,String propery_output_file){
+		Set<String> properties = new LinkedHashSet<String>();
+		File root_file = new File(jsp_target_dir);
+		loadFile(root_file,properties);
+		outToFile(propery_output_file,properties);
 	}
 
-	private static void loadFile(File file){
+	private static void loadFile(File file,Set<String> properties){
 		if(!file.isDirectory()&&file.getName().endsWith("jsp")){
 			try {
 				String fileText = FileUtils.readFileToString(file,"utf-8");
-				getPropertis(file.getName(),fileText);
+				getPropertis(properties,file.getName(),fileText);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 
 		}else if(file.isDirectory()){
 			for(File f : file.listFiles()){
-				loadFile(f);
+				loadFile(f,properties);
 			}
 		}
 	}
 
 	/**
 	 * 获取 i18 message 键值对
+	 * @param properties
 	 * @param fileName
 	 * @param text
 	 * @return
 	 */
-	private static void getPropertis(String fileName,String text){
+	private static void getPropertis(Set<String> properties,String fileName,String text){
 		List<String> errorList = new ArrayList<String>();
 		Matcher matcher = pattern.matcher(text);
 		int count = 0;
@@ -90,9 +90,9 @@ public class AutoSetPropertyFile {
 		}
 	}
 
-	private static  void outToFile(){
+	private static  void outToFile(String output_file,Set<String> properties){
 		try {
-			FileUtils.writeStringToFile(new File(OUTPUT_FILE_PATH), collectionToDelimitedString(properties, "\n"));
+			FileUtils.writeStringToFile(new File(output_file), collectionToDelimitedString(properties, "\n"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
